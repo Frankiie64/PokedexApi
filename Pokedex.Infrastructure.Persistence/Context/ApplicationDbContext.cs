@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Pokedex.Core.Domain.Commons;
 using Pokedex.Core.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,8 +16,30 @@ namespace Pokedex.Infrastructure.Persistence.Context
         public virtual DbSet<Region> Region { get; set; }
         public virtual DbSet<Pokemon> Pokemon { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opt) : base(opt) { }
-     
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opt,IHttpContextAccessor http) : base(opt) { _httpContextAccessor = http; }
+
+
+        public  override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            foreach (var entry in ChangeTracker.Entries<AuditableBaseEntity>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Modified:
+                        entry.Entity.LastUpdated = DateTime.Now;
+                        entry.Entity.LastUpdatedBy = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+                        break;
+                    case EntityState.Added:
+                        entry.Entity.Created = DateTime.Now;
+                        entry.Entity.CreateBy = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+                        break;
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
         protected override void OnModelCreating(ModelBuilder mb)
         {
             // Definition tables

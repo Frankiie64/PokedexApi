@@ -25,9 +25,17 @@ namespace Pokedex.Core.Application.Services
             _mapper = mapper;
         }
 
-        public Task<bool> Add(sv entity)
+        public async Task<bool> Add(sv entity)
         {
-            throw new NotImplementedException();
+            try
+            {
+                model model = _mapper.Map<model>(entity);
+                return await _repository.Add(model);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }        
         }
 
         public Task<bool> Delete(Guid Id)
@@ -35,12 +43,20 @@ namespace Pokedex.Core.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> Exists(Expression<Func<dto, bool>> predicate)
+        public async Task<bool> Exists(Expression<Func<model, bool>> predicate)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await _repository.Exists(predicate);
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }        
         }
 
-        public Task<dto> FindWhere(Expression<Func<dto, bool>> predicate, Expression<Func<dto, dynamic>> selector)
+        public Task<dto> FindWhere(Expression<Func<dto, bool>> predicate, Expression<Func<dto, dynamic>> include)
         {
             throw new NotImplementedException();
         }

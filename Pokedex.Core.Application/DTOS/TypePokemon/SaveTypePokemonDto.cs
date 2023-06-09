@@ -10,10 +10,6 @@ namespace Pokedex.Core.Application.DTOS.TypePokemon
         public string UrlPhoto { get; set; }
         public IFormFile File { get; set; }
 
-        public SaveTypePokemonDto(Guid id = new Guid())
-        {
-            Id = id == Guid.Empty ? Guid.NewGuid() : id;          
-        }
-
+      
     }
 }
