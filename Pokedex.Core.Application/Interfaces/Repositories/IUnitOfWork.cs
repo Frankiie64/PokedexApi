@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pokedex.Core.Domain.Commons;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,6 @@ namespace Pokedex.Core.Application.Interfaces.Repositories
     public interface IUnitOfWork: IDisposable
     {
         void Dispose();
-        IGenericRepository<T> Repository<T>() where T : class;
+        IGenericRepository<T> Repository<T>() where T : AuditableBaseEntity;
     }
 }

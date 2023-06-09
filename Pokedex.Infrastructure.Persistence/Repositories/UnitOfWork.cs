@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pokedex.Core.Application.Interfaces.Repositories;
+using Pokedex.Core.Domain.Commons;
 using Pokedex.Infrastructure.Persistence.Context;
 
 namespace Pokedex.Infrastructure.Persistence.Repositories
@@ -14,7 +15,7 @@ namespace Pokedex.Infrastructure.Persistence.Repositories
             _db = db;
         }
 
-        public IGenericRepository<T> Repository<T>() where T : class
+        public IGenericRepository<T> Repository<T>() where T : AuditableBaseEntity
         {
             if (repositories == null)
             {

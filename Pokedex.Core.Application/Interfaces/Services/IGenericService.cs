@@ -14,7 +14,7 @@ namespace Pokedex.Core.Application.Interfaces.Services
     {
         Task<IEnumerable<dto>> GetAll();
         Task<dto> GetById(Guid Id);
-        Task<dto> FindWhere(Expression<Func<dto, bool>> predicate, Expression<Func<dto, dynamic>> include);
+        Task<dto> FindWhere(Expression<Func<model, bool>> predicate, Expression<Func<model, dynamic>> include);
         Task<IEnumerable<dto>> GetList(Expression<Func<model, bool>> predicate = null, Expression<Func<model, dynamic>> include = null);
         Task<bool> Add(sv entity);
         Task<bool> Delete(Guid Id);

@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pokedex.Core.Application.Interfaces.Repositories;
+using Pokedex.Core.Domain.Commons;
 using Pokedex.Infrastructure.Persistence.Context;
 using System.Linq.Expressions;
 
 namespace Pokedex.Infrastructure.Persistence.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T>
-    where T : class
+    where T : AuditableBaseEntity
     {
         private readonly ApplicationDbContext _db;
 
@@ -39,11 +40,19 @@ namespace Pokedex.Infrastructure.Persistence.Repositories
 
         public async virtual Task<bool> Update(T entity)
         {
-            if (_db.Entry(entity).State == EntityState.Detached)
+            var entry = await _db.Set<T>().FindAsync(entity.Id);
+
+            if (entry == null)
             {
-                _db.Attach(entity);
+                return false;
             }
-            _db.Entry(entity).State = EntityState.Modified;
+
+            entity.Created = entry.Created;
+            entity.CreateBy = entry.CreateBy;
+
+            _db.Entry(entry).CurrentValues.SetValues(entity);
+
+           
             return await CommitChanges();
         }
 

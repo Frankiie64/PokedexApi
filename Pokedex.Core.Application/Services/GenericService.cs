@@ -1,19 +1,14 @@
 ﻿using AutoMapper;
 using Pokedex.Core.Application.Interfaces.Repositories;
 using Pokedex.Core.Application.Interfaces.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Pokedex.Core.Domain.Commons;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pokedex.Core.Application.Services
 {
     public class GenericService<sv, dto, model> : IGenericService<sv, dto, model>
         where dto : class
-        where model : class
+        where model : AuditableBaseEntity
         where sv : class
     {
         private readonly IGenericRepository<model> _repository;
@@ -38,9 +33,17 @@ namespace Pokedex.Core.Application.Services
             }        
         }
 
-        public Task<bool> Delete(Guid Id)
+        public async Task<bool> Delete(Guid Id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await _repository.Delete(Id);
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
         }
 
         public async Task<bool> Exists(Expression<Func<model, bool>> predicate)
@@ -56,19 +59,45 @@ namespace Pokedex.Core.Application.Services
             }        
         }
 
-        public Task<dto> FindWhere(Expression<Func<dto, bool>> predicate, Expression<Func<dto, dynamic>> include)
+        public async Task<dto> FindWhere(Expression<Func<model, bool>> predicate, Expression<Func<model, dynamic>> include)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _repository.FindWhere(predicate, include);
+                return _mapper.Map<dto>(result);
+
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
         }
 
-        public Task<IEnumerable<dto>> GetAll()
+        public async Task<IEnumerable<dto>> GetAll()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _repository.GetAll();
+                return _mapper.Map<IEnumerable<dto>>(result);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
-        public Task<dto> GetById(Guid Id)
+        public async Task<dto> GetById(Guid Id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _repository.GetById(Id);
+                return _mapper.Map<dto>(result);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public async Task<IEnumerable<dto>> GetList(Expression<Func<model, bool>> predicate = null, Expression<Func<model, dynamic>> include = null)
@@ -86,7 +115,15 @@ namespace Pokedex.Core.Application.Services
 
         public async Task<bool> Update(sv entity)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var model = _mapper.Map<model>(entity);
+                return await _repository.Update(model);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

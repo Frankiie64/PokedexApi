@@ -2,12 +2,12 @@
 using Pokedex.Core.Application.DTOS.TypePokemon;
 using Pokedex.Core.Application.Interfaces.Services;
 using Pokedex.Core.Domain.Entities;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Pokedex.WebApi.Controllers.v1
 {
-    [Route("api/typePokemon")]
-    [ApiVersion("1.0")]
-    public class TypePokemonController : BaseController
+     [ApiVersion("1.0")]
+        public class TypePokemonController : BaseController
     {
         private IGenericService<SaveTypePokemonDto, TypePokemonDto, TypePokemon> _service;
 
@@ -16,7 +16,14 @@ namespace Pokedex.WebApi.Controllers.v1
             _service = service;
         }
 
+        /// <summary>
+        /// Devuelve todos los tipos de pokémon.
+        /// </summary>
+        /// <returns>Una lista de objetos TypePokemonDto.</returns>
         [HttpGet("getAll")]
+        [ProducesResponseType(typeof(IEnumerable<TypePokemonDto>),StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -25,6 +32,12 @@ namespace Pokedex.WebApi.Controllers.v1
                     include: x => x.Pokemons,
                     predicate: null
                 );
+
+                if (result.Count() == 0)
+                {
+                    return NotFound("No se han encontrado tipo de pokemones.");
+                }
+
                 return Ok(result);
             }
             catch (Exception e)
@@ -32,12 +45,29 @@ namespace Pokedex.WebApi.Controllers.v1
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error al recuperar datos de la base de datos.");
             }
         }
+        /// <summary>
+        /// // Devuelve un tipo de Pokémon por su identificador.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Un objetos TypePokemonDto.</returns>
 
         [HttpGet("getById/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
+                var response = await _service.Exists(
+                    predicate: x => x.Id == id
+                    );
+
+                if (!response)
+                {
+                    return NotFound("El tipo de pokemon no existe.");
+                }
+
                 var result = await _service.GetById(id);
                 return Ok(result);
             }
@@ -47,18 +77,31 @@ namespace Pokedex.WebApi.Controllers.v1
             }
         }
 
+        /// <summary>
+        /// Agrega un nuevo tipo de Pokémon.
+        /// </summary>
+        /// <param name="sv"></param>
+        /// <returns></returns>
         [HttpPost("add")]
-        public async Task<IActionResult> Add([FromForm]SaveTypePokemonDto sv)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Add([FromForm] SaveTypePokemonDto sv)
         {
             try
-            {                
+            {
                 var response = await _service.Exists(x => x.Id == sv.Id);
                 if (response)
                 {
                     return BadRequest("El tipo de pokemon ya existe.");
                 }
 
-                return Ok(await _service.Add(sv));
+                if (!_service.Add(sv).Result)
+                {
+                    return BadRequest("No se ha podido completar esta acción.");
+                }
+
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -66,8 +109,17 @@ namespace Pokedex.WebApi.Controllers.v1
             }
         }
 
+        /// <summary>
+        /// Actualiza un tipo de Pokémon existente.
+        /// </summary>
+        /// <param name="sv"></param>
+        /// <returns></returns>
         [HttpPut("update")]
-        public async Task<IActionResult> Update(SaveTypePokemonDto sv)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Update([FromForm] SaveTypePokemonDto sv)
         {
             try
             {
@@ -75,10 +127,20 @@ namespace Pokedex.WebApi.Controllers.v1
 
                 if (!response)
                 {
-                    return BadRequest("El tipo de pokemon no existe.");
+                    return NotFound("El tipo de pokemon no existe.");
                 }
 
-                return Ok(await _service.Update(sv));
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Todos los campos son obligatios");
+                }
+
+                if (!_service.Update(sv).Result)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Ha ocurrido un fallo en nuestros servidores");
+                }
+
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -86,16 +148,29 @@ namespace Pokedex.WebApi.Controllers.v1
             }
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(Guid Id)
+        /// <summary>
+        /// Elimina un tipo de Pokémon por su identificador.
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns>Una confirmación segun sea el caso </returns>
+        [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Delete([FromQuery] Guid Id)
         {
             try
             {
                 var response = await _service.Exists(x => x.Id == Id);
                 if (!response)
-                    return Ok("El tipo de pokemon no existe");
+                    return BadRequest("El tipo de pokemon no existe");
 
-                return Ok(await _service.Delete(Id));
+                if (await _service.Delete(Id))
+                {
+                    return Ok(true);
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ha ocurrido un fallo tecnico en nuestros servidores.");
             }
             catch (Exception ex)
             {
@@ -103,12 +178,24 @@ namespace Pokedex.WebApi.Controllers.v1
             }
         }
 
-
+        /// <summary>
+        /// Busca tipos de Pokémon por nombre.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>Una lista de objetos TypePokemonDto.</returns>
         [HttpGet("Search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SearchByName(string name)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    BadRequest(name);
+                }
+
                 var entity = await _service.FindWhere(
                     predicate: x => x.Name.Contains(name),
                     include: null

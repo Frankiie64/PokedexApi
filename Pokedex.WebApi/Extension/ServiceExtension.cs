@@ -15,8 +15,8 @@ namespace Pokedex.WebApi.Extension
                 opt.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "MySmartEdu API",
-                    Description = "Esta es la primera version del API de MySmartEdu, en lo adelante estara sujeto a cambio hasta que finalicemos con esta primera version del aplicativo.",
+                    Title = "Pokedex API v1",
+                    Description = "¡Explora nuestro repositorio de API de Pokémon, tipos y regiones! Con la arquitectura Onion, el patrón Unit of Work y la inyección de dependencias, podrás desarrollar y mantener fácilmente una API modular y escalable. ¡Descubre la magia de nuestro código y únete a nuestra comunidad! 🚀✨.",
                     Contact = new OpenApiContact
                     {
                         Name = "Franklyn Brea",
