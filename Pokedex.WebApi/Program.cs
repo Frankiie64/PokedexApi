@@ -14,7 +14,10 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddControllers(options =>
 {
     options.Conventions.Add(new GroupingByNamespaceConvention());
-});
+}
+).AddNewtonsoftJson(opt => 
+    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddSwaggerExtensions();
@@ -28,12 +31,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-   app.UseSwggaerExtensions();
 }
 else
 {
-    app.UseSwggaerExtensions();
 }
+
+app.UseSwggaerExtensions();
+
 
 app.UseHttpsRedirection();
 

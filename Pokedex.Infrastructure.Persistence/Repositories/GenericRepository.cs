@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Pokedex.Core.Application.Interfaces.Repositories;
 using Pokedex.Core.Domain.Commons;
 using Pokedex.Infrastructure.Persistence.Context;
@@ -56,7 +57,7 @@ namespace Pokedex.Infrastructure.Persistence.Repositories
             return await CommitChanges();
         }
 
-        public async Task<T> FindWhere(Expression<Func<T, bool>> predicate = null, Expression<Func<T, dynamic>> include = null)
+        public async Task<T> FindWhere(Expression<Func<T, bool>> predicate, Expression<Func<T, dynamic>> include)
         {
             IQueryable<T> query = _db.Set<T>();
 
@@ -74,24 +75,23 @@ namespace Pokedex.Infrastructure.Persistence.Repositories
             return await query.FirstOrDefaultAsync();           
         }
 
-        public async Task<IEnumerable<T>> GetList(Expression<Func<T, bool>> predicate = null, Expression<Func<T, dynamic>> include = null)
+        public async Task<IEnumerable<T>> GetList(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
             try
             {
-                if (predicate != null && include != null)
-                {
-                    return await _db.Set<T>().Include(include).Where(predicate).ToListAsync();
-                }
-                if (predicate != null)
-                {
-                    return await _db.Set<T>().Where(predicate).ToListAsync();
-                }
+                IQueryable<T> query = _db.Set<T>();
+
                 if (include != null)
                 {
-                    return await _db.Set<T>().Include(include).ToListAsync();
+                    query = include(query);
                 }
 
-                return await _db.Set<T>().ToListAsync();
+                if (predicate != null)
+                {
+                    query = query.Where(predicate);
+                }
+
+                return await query.ToListAsync();
             }
             catch (Exception ex)
             {
@@ -114,5 +114,6 @@ namespace Pokedex.Infrastructure.Persistence.Repositories
             return await _db.SaveChangesAsync() >= 0;
         }
 
+      
     }
 }

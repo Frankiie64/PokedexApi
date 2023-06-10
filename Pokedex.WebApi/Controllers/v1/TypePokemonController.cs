@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Pokedex.Core.Application.DTOS.TypePokemon;
 using Pokedex.Core.Application.Interfaces.Services;
 using Pokedex.Core.Domain.Entities;
-using Swashbuckle.Swagger.Annotations;
 
 namespace Pokedex.WebApi.Controllers.v1
 {
-     [ApiVersion("1.0")]
+    [ApiVersion("1.0")]
         public class TypePokemonController : BaseController
     {
         private IGenericService<SaveTypePokemonDto, TypePokemonDto, TypePokemon> _service;
@@ -29,7 +29,7 @@ namespace Pokedex.WebApi.Controllers.v1
             try
             {
                 var result = await _service.GetList(
-                    include: x => x.Pokemons,
+                    include: x => x.Include(y=>y.Pokemons),
                     predicate: null
                 );
 
@@ -49,7 +49,7 @@ namespace Pokedex.WebApi.Controllers.v1
         /// // Devuelve un tipo de Pokémon por su identificador.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns>Un objetos TypePokemonDto.</returns>
+        /// <returns>Un objeto TypePokemonDto. </returns>
 
         [HttpGet("getById/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -96,6 +96,8 @@ namespace Pokedex.WebApi.Controllers.v1
                     return BadRequest("El tipo de pokemon ya existe.");
                 }
 
+                sv.setUrl("Prueba de url");
+
                 if (!_service.Add(sv).Result)
                 {
                     return BadRequest("No se ha podido completar esta acción.");
@@ -131,7 +133,7 @@ namespace Pokedex.WebApi.Controllers.v1
                 }
 
                 if (!ModelState.IsValid)
-                {
+                {                    
                     return BadRequest("Todos los campos son obligatios");
                 }
 

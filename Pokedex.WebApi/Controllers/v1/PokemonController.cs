@@ -1,27 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pokedex.Core.Application.DTOS.Region;
+using Pokedex.Core.Application.DTOS.Pokemon;
 using Pokedex.Core.Application.Interfaces.Services;
 using Pokedex.Core.Domain.Entities;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System;
 
 namespace Pokedex.WebApi.Controllers.v1
 {
     [ApiVersion("1.0")]
-    public class RegionController : BaseController
+    public class PokemonController : BaseController
     {
-        private IGenericService<SaveRegionDto, RegionDto, Region> _service;
+        private IGenericService<SavePokemonDto, PokemonDto, Pokemon> _service;
 
-        public RegionController(IGenericService<SaveRegionDto, RegionDto, Region> service)
+        public PokemonController(IGenericService<SavePokemonDto, PokemonDto, Pokemon> service)
         {
             _service = service;
         }
 
         /// <summary>
-        /// Devuelve todas las regiones.
+        /// Devuelve todas los pokemones.
         /// </summary>
-        /// <returns>Una lista de objetos TypePokemonDto.</returns>
+        /// <returns>Una lista de objetos PokemonDto.</returns>
         [HttpGet("getAll")]
-        [ProducesResponseType(typeof(IEnumerable<RegionDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<PokemonDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAll()
@@ -29,13 +32,14 @@ namespace Pokedex.WebApi.Controllers.v1
             try
             {
                 var result = await _service.GetList(
-                    include: x => x.Include(y=>y.Pokemons),
-                    predicate: null
+                            include: query => query.Include(x => x.TypePokemon)
+                           .Include(x=>x.Region), 
+                            predicate: null
                 );
 
                 if (result.Count() == 0)
                 {
-                    return NotFound("No se han encontrado regiones.");
+                    return NotFound("No se han encontrado pokemones.");
                 }
 
                 return Ok(result);
@@ -46,10 +50,10 @@ namespace Pokedex.WebApi.Controllers.v1
             }
         }
         /// <summary>
-        /// Devuelve una region por su identificador.
+        /// Devuelve un pokemon por su identificador.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns>Un objeto RegionDto.</returns>
+        /// <returns>Un objeto PokemonDto segun su identificador.</returns>
 
         [HttpGet("getById/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -65,7 +69,7 @@ namespace Pokedex.WebApi.Controllers.v1
 
                 if (!response)
                 {
-                    return NotFound("La region no existe.");
+                    return NotFound("El pokemon no existe.");
                 }
 
                 var result = await _service.GetById(id);
@@ -78,7 +82,7 @@ namespace Pokedex.WebApi.Controllers.v1
         }
 
         /// <summary>
-        /// Agrega una nueva region.
+        /// Agrega un nuevo Pokemon.
         /// </summary>
         /// <param name="sv"></param>
         /// <returns></returns>
@@ -86,15 +90,17 @@ namespace Pokedex.WebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Add([FromForm] SaveRegionDto sv)
+        public async Task<IActionResult> Add([FromForm] SavePokemonDto sv)
         {
             try
             {
                 var response = await _service.Exists(x => x.Id == sv.Id);
                 if (response)
                 {
-                    return BadRequest("El tipo de pokemon ya existe.");
+                    return BadRequest("El pokemon ya existe.");
                 }
+
+                sv.setUrl("Prueba de url");
 
                 if (!_service.Add(sv).Result)
                 {
@@ -110,7 +116,7 @@ namespace Pokedex.WebApi.Controllers.v1
         }
 
         /// <summary>
-        /// Actualiza una region existente.
+        /// Actualiza un Pokemon existente.
         /// </summary>
         /// <param name="sv"></param>
         /// <returns></returns>
@@ -119,7 +125,7 @@ namespace Pokedex.WebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromForm] SaveRegionDto sv)
+        public async Task<IActionResult> Update([FromForm] SavePokemonDto sv)
         {
             try
             {
@@ -127,7 +133,7 @@ namespace Pokedex.WebApi.Controllers.v1
 
                 if (!response)
                 {
-                    return NotFound("El tipo de pokemon no existe.");
+                    return NotFound("El pokemon no existe.");
                 }
 
                 if (!ModelState.IsValid)
@@ -149,7 +155,7 @@ namespace Pokedex.WebApi.Controllers.v1
         }
 
         /// <summary>
-        /// Elimina una region por su identificador.
+        /// Elimina un Pokemon por su identificador.
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Una confirmación segun sea el caso </returns>
@@ -163,7 +169,7 @@ namespace Pokedex.WebApi.Controllers.v1
             {
                 var response = await _service.Exists(x => x.Id == Id);
                 if (!response)
-                    return BadRequest("El tipo de pokemon no existe");
+                    return BadRequest("El pokemon no existe");
 
                 if (await _service.Delete(Id))
                 {
@@ -179,23 +185,17 @@ namespace Pokedex.WebApi.Controllers.v1
         }
 
         /// <summary>
-        /// Busca tipos de Pokémon por nombre.
+        /// Busca Pokemones por nombre.
         /// </summary>
         /// <param name="name"></param>
-        /// <returns>Una lista de objetos RegionDto.</returns>
+        /// <returns>Una lista de objetos PokemonDto.</returns>
         [HttpGet("Search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SearchByName(string name)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    BadRequest(name);
-                }
-
                 var entity = await _service.FindWhere(
                     predicate: x => x.Name.Contains(name),
                     include: null
@@ -209,4 +209,3 @@ namespace Pokedex.WebApi.Controllers.v1
         }
     }
 }
- 

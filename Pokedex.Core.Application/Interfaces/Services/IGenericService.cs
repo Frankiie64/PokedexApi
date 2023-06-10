@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,7 +16,7 @@ namespace Pokedex.Core.Application.Interfaces.Services
         Task<IEnumerable<dto>> GetAll();
         Task<dto> GetById(Guid Id);
         Task<dto> FindWhere(Expression<Func<model, bool>> predicate, Expression<Func<model, dynamic>> include);
-        Task<IEnumerable<dto>> GetList(Expression<Func<model, bool>> predicate = null, Expression<Func<model, dynamic>> include = null);
+        Task<IEnumerable<dto>> GetList(Expression<Func<model, bool>> predicate = null, Func<IQueryable<model>, IIncludableQueryable<model, object>> include = null);
         Task<bool> Add(sv entity);
         Task<bool> Delete(Guid Id);
         Task<bool> Update(sv entity);

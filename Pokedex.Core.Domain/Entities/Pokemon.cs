@@ -7,9 +7,9 @@ namespace Pokedex.Core.Domain.Entities
         public string Name { get; set; }
         public string UrlPhoto { get; set; }
         public Guid RegionId { get; set; }
-        public Region Region { get; set; }
+        public virtual Region Region { get; set; }
         public Guid TypeId { get; set; }
-        public TypePokemon TypePokemon { get; set; }
+        public virtual TypePokemon TypePokemon { get; set; }
 
     }
 }

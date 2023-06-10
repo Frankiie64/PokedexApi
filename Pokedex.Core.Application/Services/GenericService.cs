@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Query;
 using Pokedex.Core.Application.Interfaces.Repositories;
 using Pokedex.Core.Application.Interfaces.Services;
 using Pokedex.Core.Domain.Commons;
@@ -100,7 +101,7 @@ namespace Pokedex.Core.Application.Services
             }
         }
 
-        public async Task<IEnumerable<dto>> GetList(Expression<Func<model, bool>> predicate = null, Expression<Func<model, dynamic>> include = null)
+        public async Task<IEnumerable<dto>> GetList(Expression<Func<model, bool>> predicate = null, Func<IQueryable<model>, IIncludableQueryable<model, object>> include = null)
         {
             try
             {
