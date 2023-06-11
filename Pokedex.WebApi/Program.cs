@@ -43,6 +43,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseHealthChecks("/health");
+
 app.MapControllers();
+
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 app.Run();

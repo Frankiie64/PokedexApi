@@ -16,9 +16,9 @@ namespace Pokedex.Core.Application.Services
         private readonly IMapper _mapper;
 
         public GenericService(IMapper mapper,IUnitOfWork unitOfWork)
-        {
-            _repository = unitOfWork.Repository<model>();
+        {          
             _mapper = mapper;
+            _repository = unitOfWork.Repository<model>();
         }
 
         public async Task<bool> Add(sv entity)

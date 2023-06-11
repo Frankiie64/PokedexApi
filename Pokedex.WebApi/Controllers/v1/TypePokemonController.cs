@@ -42,7 +42,7 @@ namespace Pokedex.WebApi.Controllers.v1
             }
             catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error al recuperar datos de la base de datos.");
+                return StatusCode(StatusCodes.Status500InternalServerError, e);
             }
         }
         /// <summary>

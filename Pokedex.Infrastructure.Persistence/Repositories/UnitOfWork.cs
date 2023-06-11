@@ -1,46 +1,52 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Pokedex.Core.Application.Interfaces.Repositories;
 using Pokedex.Core.Domain.Commons;
 using Pokedex.Infrastructure.Persistence.Context;
+using Pokedex.Infrastructure.Persistence.Repositories;
 
-namespace Pokedex.Infrastructure.Persistence.Repositories
+public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public ApplicationDbContext Db { get; }
+
+    public UnitOfWork(DbContextOptions<ApplicationDbContext> opt, IHttpContextAccessor http)
     {
-        private Dictionary<string, object> repositories;
-        private ApplicationDbContext _db { get; }
+        Db = new ApplicationDbContext(opt, http);
+    }
 
-        public UnitOfWork(ApplicationDbContext db)
+    public IGenericRepository<T> Repository<T>() where T : AuditableBaseEntity
+    {
+        var type = typeof(T).Name;
+        var repository = Singleton.Instance.repositories.FirstOrDefault(r => r.Key == type);
+
+        if (repository.Value == null)
         {
-            _db = db;
+            var repositoryType = typeof(GenericRepository<>);
+            object repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), Db);
+            repository = new KeyValuePair<string, object>(type, repositoryInstance);
+            Singleton.Instance.repositories.AddLast(repository);
+            Singleton.Instance.dbs.Add(type, Db);
+        }
+        else
+        {
+            Singleton.Instance.repositories.Remove(repository);
+            Singleton.Instance.repositories.AddLast(repository);
         }
 
-        public IGenericRepository<T> Repository<T>() where T : AuditableBaseEntity
+        return (GenericRepository<T>)repository.Value;
+    }
+
+    public void Dispose()
+    {
+        if (Singleton.Instance.repositories.Count > 2)
         {
-            if (repositories == null)
-            {
-                repositories = new Dictionary<string, object>();
-            }
+            var oldestRepository = Singleton.Instance.repositories.First();
+            var disposableRepository = Singleton.Instance.dbs.FirstOrDefault(x =>x.Key == oldestRepository.Key).Value;
 
-            var type = typeof(T).Name;
+            Singleton.Instance.repositories.Remove(oldestRepository);
+            disposableRepository.Dispose();
 
-            if (!repositories.ContainsKey(type))
-            {
-                var repositoryType = typeof(GenericRepository<>);
-                object repositoryInstance = null;
-
-                repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), _db);
-                repositories.Add(type, repositoryInstance);
-
-            }
-
-            return (GenericRepository<T>)repositories[type];
         }
-        public void Dispose()
-        {
-            _db.Dispose();
-        }
+
     }
 }
-
-

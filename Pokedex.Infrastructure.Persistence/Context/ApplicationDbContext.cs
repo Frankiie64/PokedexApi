@@ -2,11 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Pokedex.Core.Domain.Commons;
 using Pokedex.Core.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pokedex.Infrastructure.Persistence.Context
 {
@@ -16,10 +11,11 @@ namespace Pokedex.Infrastructure.Persistence.Context
         public virtual DbSet<Region> Region { get; set; }
         public virtual DbSet<Pokemon> Pokemon { get; set; }
 
-
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opt,IHttpContextAccessor http) : base(opt) { _httpContextAccessor = http; }
-
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opt, IHttpContextAccessor http) : base(opt) 
+        {         
+            _httpContextAccessor = http;
+        }
 
         public  override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -93,5 +89,6 @@ namespace Pokedex.Infrastructure.Persistence.Context
                 e.Property(p => p.Description).IsRequired();
             });
         }
+
     }
 }
