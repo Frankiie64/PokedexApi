@@ -3,17 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using Pokedex.Core.Application.DTOS.TypePokemon;
 using Pokedex.Core.Application.Interfaces.Services;
 using Pokedex.Core.Domain.Entities;
+using Pokedex.Core.Application.DTOS.Ids;
 
 namespace Pokedex.WebApi.Controllers.v1
 {
     [ApiVersion("1.0")]
         public class TypePokemonController : BaseController
     {
-        private IGenericService<SaveTypePokemonDto, TypePokemonDto, TypePokemon> _service;
+        private readonly IGenericService<SaveTypePokemonDto, TypePokemonDto, TypePokemon> _service;
+        private readonly IIdsService _IdsService;
 
-        public TypePokemonController(IGenericService<SaveTypePokemonDto, TypePokemonDto, TypePokemon> service)
+        public TypePokemonController(IGenericService<SaveTypePokemonDto, TypePokemonDto, TypePokemon> service, IIdsService IdsService)
         {
             _service = service;
+            _IdsService= IdsService;
         }
 
         /// <summary>
@@ -96,7 +99,19 @@ namespace Pokedex.WebApi.Controllers.v1
                     return BadRequest("El tipo de pokemon ya existe.");
                 }
 
-                sv.setUrl("Prueba de url");
+
+                var responseFromIds = await _IdsService.UploadFile(new UploadFileRequest
+                {
+                    Id = sv.Id.ToString(),
+                    file = sv.File,
+                });
+
+                if (responseFromIds == null || responseFromIds.Info.HasError)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje :" + responseFromIds.Info.Message.ToString() + " Falla Tecnica : " + responseFromIds.Info.Technicalfailure);
+                }
+
+                sv.SetUrl(responseFromIds.Url);
 
                 if (!_service.Add(sv).Result)
                 {

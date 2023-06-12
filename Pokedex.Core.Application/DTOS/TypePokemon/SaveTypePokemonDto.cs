@@ -14,9 +14,14 @@ namespace Pokedex.Core.Application.DTOS.TypePokemon
         [Required(ErrorMessage = "Debes ingresar el logo de este tipo de pokemon")]
         public IFormFile File { get; set; }
 
-        public void setUrl(string url)
+        public void SetUrl(string url)
         {
             this.UrlPhoto = url;
+        }
+
+        public string GetUrl()
+        {
+            return this.UrlPhoto;
         }
 
     }

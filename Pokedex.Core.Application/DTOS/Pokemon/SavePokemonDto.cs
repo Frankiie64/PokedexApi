@@ -18,11 +18,11 @@ namespace Pokedex.Core.Application.DTOS.Pokemon
         public IFormFile File { get; set; }
 
 
-        public void setUrl(string url)
+        public void SetUrl(string url)
         {
             this.UrlPhoto = url;  
         }
-        public string gettUrl()
+        public string   GetUrl()
         {
             return this.UrlPhoto;
         }

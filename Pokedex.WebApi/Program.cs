@@ -1,13 +1,14 @@
 using Pokedex.Core.Application;
 using Pokedex.Infrastructure.Persistence;
+using Pokedex.Infrastructure.Share;
 using Pokedex.WebApi.Extension;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddPersistenceLayer(builder.Configuration);
 builder.Services.AddApplicationLayer();
+builder.Services.AddShared(builder.Configuration);
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

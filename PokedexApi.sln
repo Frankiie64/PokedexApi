@@ -15,9 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{5BBE822A-A629-4F88-B0A3-2715CBC928DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokedex.Infrastructure.Persistence", "Pokedex.Infrastructure.Persistence\Pokedex.Infrastructure.Persistence.csproj", "{91846D09-5044-4654-BD81-8C6AC92E39CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pokedex.Infrastructure.Persistence", "Pokedex.Infrastructure.Persistence\Pokedex.Infrastructure.Persistence.csproj", "{91846D09-5044-4654-BD81-8C6AC92E39CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokedex.Core.Application", "Pokedex.Core.Application\Pokedex.Core.Application.csproj", "{16DE6027-4DD9-4F56-8EEB-80601C4C1766}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pokedex.Core.Application", "Pokedex.Core.Application\Pokedex.Core.Application.csproj", "{16DE6027-4DD9-4F56-8EEB-80601C4C1766}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokedex.Infrastructure.Share", "Pokedex.Infrastructure.Share\Pokedex.Infrastructure.Share.csproj", "{10050AFF-0807-4252-96B6-DDD712892E96}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{16DE6027-4DD9-4F56-8EEB-80601C4C1766}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16DE6027-4DD9-4F56-8EEB-80601C4C1766}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16DE6027-4DD9-4F56-8EEB-80601C4C1766}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10050AFF-0807-4252-96B6-DDD712892E96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10050AFF-0807-4252-96B6-DDD712892E96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10050AFF-0807-4252-96B6-DDD712892E96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10050AFF-0807-4252-96B6-DDD712892E96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{5BBE822A-A629-4F88-B0A3-2715CBC928DE} = {7572C9F5-2707-4045-BD0D-E8B59A8B3BAE}
 		{91846D09-5044-4654-BD81-8C6AC92E39CB} = {5BBE822A-A629-4F88-B0A3-2715CBC928DE}
 		{16DE6027-4DD9-4F56-8EEB-80601C4C1766} = {52C5BC20-4A86-4DE5-A163-4D5434F67E0B}
+		{10050AFF-0807-4252-96B6-DDD712892E96} = {5BBE822A-A629-4F88-B0A3-2715CBC928DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1386E485-E8B3-4036-9E2C-53BF19F3F5E6}

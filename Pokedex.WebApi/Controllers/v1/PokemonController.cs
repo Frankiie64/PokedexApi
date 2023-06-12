@@ -6,17 +6,20 @@ using Pokedex.Core.Domain.Entities;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System;
+using Pokedex.Core.Application.DTOS.Ids;
+using Pokedex.Infrastructure.Share.Services;
 
 namespace Pokedex.WebApi.Controllers.v1
 {
     [ApiVersion("1.0")]
     public class PokemonController : BaseController
     {
-        private IGenericService<SavePokemonDto, PokemonDto, Pokemon> _service;
-
-        public PokemonController(IGenericService<SavePokemonDto, PokemonDto, Pokemon> service)
+        private readonly IGenericService<SavePokemonDto, PokemonDto, Pokemon> _service;
+        private readonly IIdsService _IdsService;
+        public PokemonController(IGenericService<SavePokemonDto, PokemonDto, Pokemon> service, IIdsService idsService)
         {
             _service = service;
+            _IdsService = idsService;
         }
 
         /// <summary>
@@ -100,8 +103,18 @@ namespace Pokedex.WebApi.Controllers.v1
                     return BadRequest("El pokemon ya existe.");
                 }
 
-                sv.setUrl("Prueba de url");
+                var responseFromIds = await _IdsService.UploadFile(new UploadFileRequest
+                {
+                    Id = sv.Id.ToString(),
+                    file = sv.File,
+                });
 
+                if (responseFromIds == null || responseFromIds.Info.HasError)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje :" + responseFromIds.Info.Message.ToString() + " Falla Tecnica : " + responseFromIds.Info.Technicalfailure);
+                }
+
+                sv.SetUrl(responseFromIds.Url);
                 if (!_service.Add(sv).Result)
                 {
                     return BadRequest("No se ha podido completar esta acción.");
