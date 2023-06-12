@@ -51,6 +51,7 @@ namespace Pokedex.Infrastructure.Share.Services
                     {
                         response.Info.HasError = true;
                         response.Info.Message = "El servicio de correo no se encuentra disponible, favor contactar con servicio tecnico.";
+                        response.Info.Technicalfailure = await result.Content.ReadAsStringAsync();
                     }
                 }
 
@@ -74,7 +75,7 @@ namespace Pokedex.Infrastructure.Share.Services
             try
             {
                 JsonSerializerOptions opt = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-                string url = _servicio + "deleteFile";
+                string url = _servicio + "Document/deleteFile";
 
                 if (string.IsNullOrWhiteSpace(url))
                 {

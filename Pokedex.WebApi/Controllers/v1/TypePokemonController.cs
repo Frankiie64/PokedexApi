@@ -108,7 +108,7 @@ namespace Pokedex.WebApi.Controllers.v1
 
                 if (responseFromIds == null || responseFromIds.Info.HasError)
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje :" + responseFromIds.Info.Message.ToString() + " Falla Tecnica : " + responseFromIds.Info.Technicalfailure);
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje: " + responseFromIds.Info.Message.ToString() + " Falla Tecnica: " + responseFromIds.Info.Technicalfailure);
                 }
 
                 sv.SetUrl(responseFromIds.Url);
@@ -168,21 +168,21 @@ namespace Pokedex.WebApi.Controllers.v1
         /// <summary>
         /// Elimina un tipo de Pokémon por su identificador.
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns>Una confirmación segun sea el caso </returns>
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete([FromQuery] Guid Id)
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try
             {
-                var response = await _service.Exists(x => x.Id == Id);
+                var response = await _service.Exists(x => x.Id == id);
                 if (!response)
                     return BadRequest("El tipo de pokemon no existe");
 
-                if (await _service.Delete(Id))
+                if (await _service.Delete(id))
                 {
                     return Ok(true);
                 }

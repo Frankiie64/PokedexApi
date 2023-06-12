@@ -153,19 +153,19 @@ namespace Pokedex.WebApi.Controllers.v1
         /// </summary>
         /// <param name="Id"></param>
         /// <returns>Una confirmación segun sea el caso </returns>
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete([FromQuery] Guid Id)
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try
             {
-                var response = await _service.Exists(x => x.Id == Id);
+                var response = await _service.Exists(x => x.Id == id);
                 if (!response)
                     return BadRequest("El tipo de pokemon no existe");
 
-                if (await _service.Delete(Id))
+                if (await _service.Delete(id))
                 {
                     return Ok(true);
                 }
