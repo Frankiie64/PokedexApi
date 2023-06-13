@@ -6,7 +6,7 @@ namespace Pokedex.Core.Application.DTOS.Pokemon
 {
     public class SavePokemonDto
     {
-        public Guid Id { get; set; }
+        private Guid Id { get; set; }
         [Required(ErrorMessage = "Debes ingresar el nombre del pokemon.")]
         public string Name { get; set; }
         private string UrlPhoto { get; set; }
@@ -25,6 +25,15 @@ namespace Pokedex.Core.Application.DTOS.Pokemon
         public string   GetUrl()
         {
             return this.UrlPhoto;
+        }
+        public Guid getId()
+        {
+            return this.Id;
+        }
+
+        public void SetId(Guid id)
+        {
+            this.Id = id;
         }
     }
 }

@@ -93,16 +93,15 @@ namespace Pokedex.WebApi.Controllers.v1
         {
             try
             {
-                var response = await _service.Exists(x => x.Id == sv.Id);
-                if (response)
+                sv.SetId(Guid.NewGuid());
+                while (await _service.Exists(x => x.Id == sv.getId()))
                 {
-                    return BadRequest("El tipo de pokemon ya existe.");
+                    sv.SetId(Guid.NewGuid());
                 }
-
 
                 var responseFromIds = await _IdsService.UploadFile(new UploadFileRequest
                 {
-                    Id = sv.Id.ToString(),
+                    Id = sv.getId().ToString(),
                     file = sv.File,
                 });
 
@@ -129,6 +128,7 @@ namespace Pokedex.WebApi.Controllers.v1
         /// <summary>
         /// Actualiza un tipo de Pokémon existente.
         /// </summary>
+        /// <param name="id"></param>
         /// <param name="sv"></param>
         /// <returns></returns>
         [HttpPut("update")]
@@ -136,21 +136,65 @@ namespace Pokedex.WebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromForm] SaveTypePokemonDto sv)
+        public async Task<IActionResult> Update([FromQuery]Guid id,[FromForm] SaveTypePokemonDto sv)
         {
             try
             {
-                var response = await _service.Exists(x => x.Id == sv.Id);
+                var response = await _service.Exists(x => x.Id == id);
 
                 if (!response)
                 {
                     return NotFound("El tipo de pokemon no existe.");
                 }
 
+                sv.SetId(id);
+                
                 if (!ModelState.IsValid)
                 {                    
                     return BadRequest("Todos los campos son obligatios");
                 }
+
+                var model = await _service.GetById(id);
+
+                if (model == null)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Ha ocurrido un fallo en nuestros servidores");
+                }
+
+                if (sv.File != null)
+                {
+                    var responseFromIdsWhenDeleteFile = await _IdsService.DeleteFile(new DeleteFileRequest
+                    {
+                        Route = "file",
+                        Owner = id.ToString(),
+                        Id = model.UrlPhoto.Split("/").LastOrDefault().ToString()
+                    });
+
+                    if (responseFromIdsWhenDeleteFile == null || responseFromIdsWhenDeleteFile.Info.HasError)
+                    {
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje: " + responseFromIdsWhenDeleteFile.Info.Message.ToString() + " Falla Tecnica: " + responseFromIdsWhenDeleteFile.Info.Technicalfailure);
+                    }
+
+                    var responseFromIds = await _IdsService.UploadFile(new UploadFileRequest
+                    {
+                        editMode = true,
+                        file = sv.File,
+                        Id = id.ToString(),
+                        path = model.UrlPhoto
+                    });
+
+                    if (responseFromIds == null || responseFromIds.Info.HasError)
+                    {
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje: " + responseFromIds.Info.Message.ToString() + " Falla Tecnica: " + responseFromIds.Info.Technicalfailure);
+                    }
+
+                    sv.SetUrl(responseFromIds.Url);
+                }
+                else
+                {                   
+                    sv.SetUrl(model.UrlPhoto);
+                }
+
 
                 if (!_service.Update(sv).Result)
                 {

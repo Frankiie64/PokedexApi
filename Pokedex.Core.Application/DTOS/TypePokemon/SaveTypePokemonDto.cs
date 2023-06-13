@@ -5,7 +5,7 @@ namespace Pokedex.Core.Application.DTOS.TypePokemon
 {
     public class SaveTypePokemonDto
     {
-        public Guid Id { get; set; }
+        private Guid Id { get; set; }
         [Required(ErrorMessage = "Debes ingresar un nombre para este tipo de pokemon")]
         public string Name { get; set; }
         [Required(ErrorMessage = "Debes ingresar una descripcion para este tipo de pokemon")]
@@ -23,6 +23,14 @@ namespace Pokedex.Core.Application.DTOS.TypePokemon
         {
             return this.UrlPhoto;
         }
+        public Guid getId()
+        {
+            return this.Id;
+        }
 
+        public void SetId(Guid id)
+        {
+            this.Id = id;
+        }
     }
 }

@@ -90,10 +90,10 @@ namespace Pokedex.WebApi.Controllers.v1
         {
             try
             {
-                var response = await _service.Exists(x => x.Id == sv.Id);
-                if (response)
+                sv.SetId(Guid.NewGuid());
+                while (await _service.Exists(x => x.Id == sv.getId()))
                 {
-                    return BadRequest("El tipo de pokemon ya existe.");
+                    sv.SetId(Guid.NewGuid());
                 }
 
                 if (!_service.Add(sv).Result)
@@ -112,6 +112,7 @@ namespace Pokedex.WebApi.Controllers.v1
         /// <summary>
         /// Actualiza una region existente.
         /// </summary>
+        /// <param name="id"></param>
         /// <param name="sv"></param>
         /// <returns></returns>
         [HttpPut("update")]
@@ -119,21 +120,23 @@ namespace Pokedex.WebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update([FromForm] SaveRegionDto sv)
+        public async Task<IActionResult> Update([FromQuery]Guid id,[FromForm] SaveRegionDto sv)
         {
             try
             {
-                var response = await _service.Exists(x => x.Id == sv.Id);
+                var response = await _service.Exists(x => x.Id == id);
 
                 if (!response)
                 {
-                    return NotFound("El tipo de pokemon no existe.");
+                    return NotFound("La region no existe.");
                 }
 
                 if (!ModelState.IsValid)
                 {
                     return BadRequest("Todos los campos son obligatios");
                 }
+
+                sv.SetId(id);
 
                 if (!_service.Update(sv).Result)
                 {

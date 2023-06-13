@@ -22,6 +22,7 @@ namespace Pokedex.Core.Application.Mapping
                .ForMember(x => x.LastUpdatedBy, opt => opt.Ignore())
                .ForMember(x => x.Pokemons, opt => opt.Ignore())
               .ForMember(dest => dest.UrlPhoto, opt => opt.MapFrom(src => src.GetUrl()))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.getId()))
                .ReverseMap()
                .ForMember(x => x.File, opt => opt.Ignore());
 
@@ -42,6 +43,7 @@ namespace Pokedex.Core.Application.Mapping
                .ForMember(x => x.LastUpdated, opt => opt.Ignore())
                .ForMember(x => x.LastUpdatedBy, opt => opt.Ignore())
                .ForMember(x => x.Pokemons, opt => opt.Ignore())
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.getId()))
                .ReverseMap();
 
             CreateMap<RegionDto, Region>()
@@ -63,6 +65,7 @@ namespace Pokedex.Core.Application.Mapping
               .ForMember(x => x.TypePokemon, opt => opt.Ignore())
               .ForMember(x => x.Region, opt => opt.Ignore())
               .ForMember(dest => dest.UrlPhoto, opt => opt.MapFrom(src => src.GetUrl()))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.getId()))
               .ReverseMap()
               .ForMember(x => x.File, opt => opt.Ignore());
 
