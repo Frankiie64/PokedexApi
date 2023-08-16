@@ -28,14 +28,20 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: FTPUpload@2
+- task: PublishPipelineArtifact@1
   inputs:
-    credentialsOption: 'inputs'
-    serverUrl: 'ftp://netcore7.somee.com/www.netcore7.somee.com'
-    username: 'MailServer01'
-    password: '123Pass$$'
-    rootDirectory: '$(build.artifactStagingDirectory)'
-    remoteDirectory: '/'  # Ruta en el servidor FTP de Somee
+    targetPath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    artifact: 'ZipArtifacts'    
+
+# - task: FTPUpload@2
+#   inputs:
+#     credentialsOption: 'inputs'
+#     serverUrl: 'ftp://155.254.244.28/www.netcore7.somee.com'
+#     username: 'MailServer01'
+#     password: '123Pass$$'
+#     rootDirectory: '$(build.artifactStagingDirectory)'
+#     remoteDirectory: '/' 
+ 
 
 # - task: VSTest@2
 #   inputs:
