@@ -186,7 +186,7 @@ namespace Pokedex.WebApi.Controllers.v1
         /// </summary>
         /// <param name="name"></param>
         /// <returns>Una lista de objetos RegionDto.</returns>
-        [HttpGet("Search")]
+        [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

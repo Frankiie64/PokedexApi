@@ -167,19 +167,7 @@ namespace Pokedex.WebApi.Controllers.v1
                 }
 
                 if (sv.File != null)
-                {
-                    var responseFromIdsWhenDeleteFile = await _IdsService.DeleteFile(new DeleteFileRequest
-                    {
-                        Route = "file",
-                        Owner = id.ToString(),
-                        Id = model.UrlPhoto.Split("/").LastOrDefault().ToString()
-                    });
-
-                    if (responseFromIdsWhenDeleteFile == null || responseFromIdsWhenDeleteFile.Info.HasError)
-                    {
-                        return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje: " + responseFromIdsWhenDeleteFile.Info.Message.ToString() + " Falla Tecnica: " + responseFromIdsWhenDeleteFile.Info.Technicalfailure);
-                    }
-
+                {                 
                     var responseFromIds = await _IdsService.UploadFile(new UploadFileRequest
                     {
                         editMode = true,
@@ -230,12 +218,23 @@ namespace Pokedex.WebApi.Controllers.v1
                 if (!response)
                     return BadRequest("El pokemon no existe");
 
-                if (await _service.Delete(id))
+                if (!await _service.Delete(id))
                 {
-                    return Ok(true);
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje: ha ocurrido un error en nuestra base de datos.");
                 }
 
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ha ocurrido un fallo tecnico en nuestros servidores.");
+                var deleteFiles = await _IdsService.DeleteFile(new DeleteFileRequest
+                {
+                    Owner = id.ToString(),
+                    Route = "File"
+                });
+
+                if (deleteFiles.Info.HasError)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Mesaje: " + deleteFiles.Info.Message.ToString() + " Falla Tecnica: " + deleteFiles.Info.Technicalfailure);
+                }
+
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -248,7 +247,7 @@ namespace Pokedex.WebApi.Controllers.v1
         /// </summary>
         /// <param name="name"></param>
         /// <returns>Una lista de objetos PokemonDto.</returns>
-        [HttpGet("Search")]
+        [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SearchByName(string name)

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pokedex.Infrastructure.Persistence.Repositories;
 
 namespace Pokedex.WebApi.Controllers
 {
