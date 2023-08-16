@@ -15,9 +15,9 @@ variables:
   buildConfiguration: 'Release'
 
 stages:
-- stage: BuildAndTest
+- stage: Build
   jobs:
-  - job: BuildAndTest
+  - job: Build
     steps:
     - task: NuGetToolInstaller@1
 
@@ -32,14 +32,10 @@ stages:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
-- stage: DeployToProduction
-  jobs:
-  - job: DeployToProduction
-    steps:
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-        artifact: 'ZipArtifacts'
+        artifact: 'CompiledArtifact'
 
 
 # - task: FTPUpload@2
