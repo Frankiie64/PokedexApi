@@ -10,7 +10,7 @@ namespace Pokedex.WebApi.Extension
             app.UseSwaggerUI(opt =>
             {
                 opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Pokedex API v1");
-                opt.DefaultModelRendering(ModelRendering.Model);
+                opt.DefaultModelRendering(ModelRendering.Example);
             });
         }
     }

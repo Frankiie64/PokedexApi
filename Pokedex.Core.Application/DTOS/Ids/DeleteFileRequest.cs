@@ -4,6 +4,6 @@
     {
         public string Route { get; set; }
         public string Owner { get; set; }
-        public string Id { get; set; }
+        public string Id { get; set; } = "";
     }
 }
