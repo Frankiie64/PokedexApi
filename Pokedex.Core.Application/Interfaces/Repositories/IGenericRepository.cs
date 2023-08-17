@@ -17,6 +17,7 @@ namespace Pokedex.Core.Application.Interfaces.Repositories
         Task<IEnumerable<T>> GetList(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
         Task<bool> Add(T entity);
         Task<bool> Delete(Guid Id);
+        Task<bool> DeleteAll();
         Task<bool> Update(T entity);
         Task<bool> Exists(Expression<Func<T, bool>> predicate);
     }

@@ -25,11 +25,11 @@ namespace Pokedex.Infrastructure.Persistence.Context
                 {
                     case EntityState.Modified:
                         entry.Entity.LastUpdated = DateTime.Now;
-                        entry.Entity.LastUpdatedBy = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+                        entry.Entity.LastUpdatedBy = _httpContextAccessor.HttpContext != null ? _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString() : "JDoe";
                         break;
                     case EntityState.Added:
                         entry.Entity.Created = DateTime.Now;
-                        entry.Entity.CreateBy = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+                        entry.Entity.CreateBy = _httpContextAccessor.HttpContext != null ? _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString():"JDoe";
                         break;
                 }
             }
