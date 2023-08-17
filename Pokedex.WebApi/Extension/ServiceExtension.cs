@@ -21,7 +21,6 @@ namespace Pokedex.WebApi.Extension
                     {
                         Name = "Franklyn Brea",
                         Email = "franklynbrea100@gmail.com"
-                        //Url = new Uri("https://www.itla.edu.do")
                     }
                 });
                

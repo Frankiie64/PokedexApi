@@ -101,7 +101,7 @@ namespace Pokedex.Infrastructure.Share.Services
                     else
                     {
                         response.Info.HasError = true;
-                        response.Info.Message = "El servicio de correo no se encuentra disponible, favor contactar con servicio tecnico.";
+                        response.Info.Message = "El servicio de guardado de archivo no se encuentra disponible, favor contactar con servicio tecnico.";
                     }
                 }
 

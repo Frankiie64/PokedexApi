@@ -39,6 +39,13 @@ namespace Pokedex.Infrastructure.Persistence.Repositories
             return await CommitChanges();
         }
 
+        public async Task<bool> DeleteAll()
+        {
+            var objectToDelete = await _db.Set<T>().ToListAsync();
+            _db.Set<T>().RemoveRange(objectToDelete);
+            return await CommitChanges();
+        }
+
         public async virtual Task<bool> Update(T entity)
         {
             var entry = await _db.Set<T>().FindAsync(entity.Id);
