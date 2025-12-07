@@ -19,7 +19,7 @@ jobs:
       - name: Configurar .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'   # ajusta la versión si usas otra
+          dotnet-version: '6.0.x'   # ajusta la versión si usas otra
 
       - name: Restaurar dependencias
         run: dotnet restore
