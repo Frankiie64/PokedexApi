@@ -1,0 +1,45 @@
+name: CI - Pruebas automatizadas .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonación del repositorio
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # 2. Preparar entorno .NET
+      - name: Configurar .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'   # ajusta la versión si usas otra
+
+      - name: Restaurar dependencias
+        run: dotnet restore
+
+      # 3. Ejecutar pruebas automatizadas
+      - name: Ejecutar pruebas automatizadas
+        run: dotnet test --logger "trx;LogFileName=test-results.trx"
+
+      # 4. Publicar reporte de pruebas como artefacto
+      - name: Publicar reporte de pruebas
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-pruebas
+          path: '**/TestResults/*.trx'
+
+      # 5. Notificación simple en logs según resultado
+      - name: Notificación de éxito
+        if: ${{ success() }}
+        run: echo "✅ Pruebas exitosas. Pipeline completado correctamente."
+
+      - name: Notificación de fallo
+        if: ${{ failure() }}
+        run: echo "❌ Las pruebas han fallado. Revisar reportes antes de continuar."
